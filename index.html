@@ -1,10 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/jackocnr/intl-tel-input/master/build/css/intlTelInput.css">
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Country Selector</title>
+    <style>
+        .iti__flag {background-image: url("img/flags.png");}
+
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .iti__flag {background-image: url("img/flags@2x.png");}
+        }
+    </style>
+    <link href="https://cdn.rawgit.com/jackocnr/intl-tel-input/master/build/css/demo.css" rel="stylesheet"/>
 </head>
 <body>
+
+<form>
+    <input placeholder="712345678" type="tel" id="phone">
+    <span id="valid-msg" class="hide"></span>
+    <span id="error-msg" class="hide"></span>
+</form>
+<button onclick="outputNumber()">
+    OK
+</button>
+
+<script src="https://cdn.rawgit.com/jackocnr/intl-tel-input/master/build/js/intlTelInput.js"></script>
+
+<script>
+    var input = document.querySelector("#phone");
+
+    var validMsg = document.querySelector('#valid-msg');
+    var errorMsg = document.querySelector('#error-msg');
+    var errorMap = ["Invalid number", "Invalid country code", "Too short",
+        "Too long", "Invalid number"];
+
+    var iti = window.intlTelInput(input, {
+        initialCountry: 'se',
+        preferredCountries: ['se'],
+        separateDialCode: true,
+        nationalMode: true,
+        // TODO denna ska vara local, samt flaggor
+        utilsScript: 'js/utils.js',
+    });
+
+    var reset = function () {
+        input.classList.remove("error");
+        errorMsg.innerHTML = "";
+        errorMsg.classList.add("hide");
+        validMsg.classList.add("hide");
+    }
+
+    input.addEventListener('blur', function () {
+        reset();
+        if (input.value.trim) {
+            if (iti.isValidNumber()) {
+                validMsg.innerHTML = "√ Valid";
+            }
+            else if (input.value.length === 11) {
+                errorMsg.innerHTML = "Invalid number";
+            }
+            else {
+                validMsg.innerHTML = "";
+                input.classList.add("error");
+                var errorCode = iti.getValidationError();
+                errorMsg.innerHTML = errorMap[errorCode];
+                errorMsg.classList.remove("hide");
+            }
+        }
+    });
+
+    input.addEventListener('change', reset);
+    input.addEventListener('keyup', reset);
+
+    function outputNumber() {
+        console.log(iti.getNumber());
+    }
+
+</script>
 
 </body>
 </html>
